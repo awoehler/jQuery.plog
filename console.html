@@ -85,7 +85,6 @@ var logEntry_vm = function( d ) {
 var app_vm = function() {
 	var self = this;
 
-	self.locked = ko.observable( false );
 	self.showDebug = ko.observable( true );
 	self.toggleDebug = function() {
 		self.showDebug( self.showDebug() ? false : true );
@@ -120,24 +119,26 @@ var app_vm = function() {
 
 	//storage on update event handler
 	self.update = function(e) {
-		if( e.key == 'plogLock' ) {
-			self.locked( JSON.parse( e.newValue ) );
-		} else {
-			self.logs.removeAll();
-			var s = JSON.parse( e.newValue );
-			for( var i=0; i < s.length; i++ ) {
-				self.logs.push( new logEntry_vm( s[i] ) );
-			}			
+		//self.logs.removeAll();
+		var s = JSON.parse( e.newValue );
+		if( e.key.substr(0,5) == "plog_") {
+			self.logs.unshift( new logEntry_vm( s ) );
 		}
 	}
 
 	//Remove all of the log entries.
 	self.clear = function() {
 		self.logs.removeAll();
-		localStorage.removeItem('plog');
-		localStorage.removeItem('plogLock')
+		$.clearPlog();
 	}
 
+	self.load = function() {
+		var s = $.getPlog();
+		self.logs.removeAll();
+		for( var i=0; i < s.length; i++ ) {
+			self.logs.unshift( new logEntry_vm( s[i] ) );
+		}
+	}
 	//Log entries
 	self.logs = ko.observableArray([]);
 	// self.logFilteredLogs = ko.computed( function() {
@@ -147,16 +148,6 @@ var app_vm = function() {
 	// });		
 	// }, self );
 
-	/*
-	* Initialize the object.
-	*/
-	var s = localStorage.getItem('plog');
-	if( s != null ) {
-		s = JSON.parse( s );
-		for( var i=0; i < s.length; i++ ) {
-			self.logs.push( new logEntry_vm( s[i] ) );
-		}
-	}
 	//Connect to the window event listener so that when other windows save to the log this window will update.
 	if (window.addEventListener) {
 		window.addEventListener("storage", self.update, false);
@@ -181,12 +172,12 @@ var app_vm = function() {
 		</div>
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav">
+				<!-- <li class='active'><a href="#" data-bind="click: load">Load</a></li> -->
 				<li data-bind="css: { 'active': showError() }"><a href="#" data-bind="click: toggleError">Error</a></li>
 				<li data-bind="css: { 'active': showLog() }"><a href="#" data-bind="click: toggleLog">Log</a></li>
 				<li data-bind="css: { 'active': showInfo() }"><a href="#" data-bind="click: toggleInfo">Info</a></li>
 				<li data-bind="css: { 'active': showDebug() }"><a href="#" data-bind="click: toggleDebug">Debug</a></li>
-				<li><a href="#" data-bind="click: clear">Clear</a></li>
-				<li><a><span class="glyphicon glyphicon-warning-sign glyphicon-white" data-bind="visible: locked"></span></a></li>
+				<li class='active'><a href="#" data-bind="click: clear">Clear</a></li>
 			</ul>
 		</div><!--/.nav-collapse -->
 	</div>
@@ -346,6 +337,8 @@ $(document).ready(function() {
 <script>
 app = new app_vm();
 ko.applyBindings( app );
+//Load the logs from localStorage.
+app.load();
 </script>
 </body>
 </html>

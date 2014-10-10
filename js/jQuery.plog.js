@@ -8,15 +8,15 @@
  *  This plugin allows you to store front end log/info/error/debug messages on the server or in localStorage/sessionStorage. 
  *	The original plugin was written by Rémy Bach https://github.com/remybach/jQuery.clientSideLogging
  */
-(function($) {
-	var locked = false;
-	try {
-		locked = JSON.parse( localStorage.getItem('plogLock'));
-		locked = locked == null ? false : locked;
-	} catch( e ) {
-		alert('HTML5 and JSON.parse are required for the jQUery.plog.js plugin');
-		return;
+ if( typeof Number.prototype.pad != 'function' ) {
+	 Number.prototype.pad = function(size) {
+		var s = String(this);
+		while (s.length < (size || 2)) {s = "0" + s;}
+		return s;
 	}
+}
+
+(function($) {
 	/*===== Run polyfill for console first. =====*/
 	// Make sure browsers that don't have console don't completely die.
 	if (!window.console) {
@@ -77,12 +77,31 @@
 		}
 	};
 
-	$.getPlog = function() {
-		var t = localStorage.getItem('plog');
-		if( t == null ) { 
-			return [];
+	$.clearPlog = function() {
+		for( var i=0; i < localStorage.length; i++ ) {
+			var _key = localStorage.key(i)
+			if( _key.substr(0,5) == 'plog_' ) {
+				localStorage.removeItem( _key );
+			}
 		}
-		return JSON.parse( t );
+	}
+
+	$.getPlog = function() {
+		var t = [];
+		for( var i=0; i < localStorage.length; i++ ) {
+			var _key = localStorage.key(i)
+			if( _key.substr(0,5) == 'plog_' ) {
+				var _data = JSON.parse( localStorage.getItem( _key ) );
+				//Used to remove localStorage item when growing larger than the defaults.logSize value.
+				_data._key = _key;
+				t.push( _data );
+			}
+		}
+		t = t.sort(_compare);
+		for( i=defaults.logSize; i < t.length; i++ ) {
+			localStorage.removeItem( t[i]._key );
+		}
+		return t.slice(0,defaults.logSize);
 	}
    /**
     * The function that will send debug logs to the server. Also logs to the console using console.debug() (if available and requested by the user)
@@ -167,42 +186,40 @@
 	_send = function(url, what, errorType ) {
 		url += url.match(/\?.+$/) ? '&' : '?';
 
-		if (typeof what === 'object') {
-			// Let's grab the additional logging info before we send this off.
-			$.extend(what, _buildClientInfo());
+		switch( typeof what ) {
+			case 'undefined':
+			case 'object':
+				break;
+			case 'string':
+			case 'number':
+			case 'boolean':
+				what = { message: what };
+				break;
+			case 'function':
+			default:
+				throw('Unable to send type ' + typeof what + ' to the server because plog does not know how to render it.');
+		}
 
-			var _data = {};
-			_data[defaults.query_var] = JSON.stringify(what);
+		// Let's grab the additional logging info before we send this off.
+		$.extend(what, _buildClientInfo());
 
-			if( defaults.sendAJAX ) {
-				$.ajax({
-					type:'POST',
-					url:url+'format=json',
-					data:_data
-				}).fail( function() {
-					defaults.sendAJAX = false;
-					if( defaults.localStorage ) {
-						_localStore( 'AJAX', {'message':'An error occured while trying to communicate with the remote log server. (OBJECT)', 'stackTrace': _stackTrace() } );
-					}
-				});
-			}
-			if( defaults.localStorage ) {
-				_localStore( errorType, what );
-			}
-			
-		} else {
-			if( defaults.sendAJAX) {
-				$.post(url+'format=text&' + defaults.query_var + '=' + what)
-				 .fail( function() {
-					defaults.sendAJAX = false;
-					if( defaults.localStorage ) {
-						_localStore( 'AJAX', {'message':'An error occured while trying to communicate with the remote log server. (STRING)'} );
-					}
-				 });
-			}
-			if( defaults.localStorage ) {
-				_localStore( errorType, what );
-			}
+		var _data = {};
+		_data[defaults.query_var] = JSON.stringify(what);
+
+		if( defaults.sendAJAX ) {
+			$.ajax({
+				type:'POST',
+				url:url+'format=json',
+				data:_data
+			}).fail( function() {
+				defaults.sendAJAX = false;
+				if( defaults.localStorage ) {
+					_localStore( 'AJAX', {'message':'An error occured while trying to communicate with the remote log server. (OBJECT)', 'stackTrace': _stackTrace() } );
+				}
+			});
+		}
+		if( defaults.localStorage ) {
+			_localStore( errorType, what );
 		}
 	};
 
@@ -211,35 +228,33 @@
 	 */
 	_localStore = function ( errorType, what ) {
 		var self = this;
-		self.maxTrys = 5;
-		try {
-			locked = JSON.parse( localStorage.getItem('plogLock'));
-			locked = locked == null ? false : locked;
-		} catch( e ) {
-			locked = false;
-		}
-
-		if( locked ) {
-			throw('The localStore is currently locked');
-		}
-		var key = 'plog';
-		localStorage.setItem('plogLock',true);
-		var s = localStorage.getItem( key );
-		if( s == null ) {
-			s = [];
+		if( typeof self.plog_counter == 'undefined' ) {
+			//plog_id is an id unique to each browser window. It is highly unlikely but possible for two windows to open at the same time.
+			self.plog_id = Date.now().pad(13) +  '_' + (Math.random()*100000000000000000);
+			//Because each windows is in it's own thread we do not have to worry about thread safety withing a window.
+			self.plog_counter = 0;
 		} else {
-			s = JSON.parse( s );
+			self.plog_counter++;
 		}
+		var key = 'plog_'+self.plog_id+'_'+self.plog_counter;
 		var _data = {};
-		_data['type'] = typeof errorType != 'string' ? '' : errorType;
-		_data['timestamp'] = ( new Date() ).toJSON();
+		_data['type'] = typeof errorType != 'string' ? '' : errorType;		
+		_data['timestamp'] = Date.now();//( new Date() ).toJSON();
 		_data[defaults.query_var] = what;
-		s.unshift( _data );
-		if( s.length > defaults.logSize ) {
-			s.pop();
+		if( localStorage.getItem( key ) != null ) {
+			throw('Key already exists.');
 		}
-		localStorage.setItem( key , JSON.stringify( s ) );
-		localStorage.removeItem('plogLock',false);
+		localStorage.setItem( key , JSON.stringify( _data ) );
+	}
+
+	_compare = function( a, b ) {
+		if( a.timestamp < b.timestamp ) {
+			return -1;
+		}
+		if( a.timestamp > b.timestamp ) {
+			return 1;
+		}
+		return 0;
 	}
 
    /**
