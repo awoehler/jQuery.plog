@@ -262,7 +262,10 @@
 			_info.location = window.location.href;
 		}
 		if (defaults.client_info.stackTrace) {
-			_info.stackTrace = _stackTrace();
+			//Older versions of IE do not have the stack variable so ignore
+			try {
+				_info.stackTrace = _stackTrace();
+			} catch( e ) {}
 		}
 
 		return _info;
