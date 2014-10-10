@@ -262,22 +262,25 @@
 			_info.location = window.location.href;
 		}
 		if (defaults.client_info.stackTrace) {
-			//Older versions of IE do not have the stack variable so ignore
-			try {
-				_info.stackTrace = _stackTrace();
-			} catch( e ) {}
+			_info.stackTrace = _stackTrace();
 		}
 
 		return _info;
 	};
+
 	/**
 	 * Provide a stacktrace of where the error occured.
 	 */
 	_stackTrace = function() {
-	    var err = new Error();
-	    //Remove the plog stack trace elements.
-	    var errStack = err.stack.split('\n').slice(5);	    
-	    errStack.unshift('Error');
-    	return errStack.join('\n');
+		//Older versions of IE do not have the stack variable so ignore
+		try {
+			var err = new Error();
+			//Remove the plog stack trace elements.
+			var errStack = err.stack.split('\n').slice(5);	    
+			errStack.unshift('Error');
+			return errStack.join('\n');
+		} catch( e ) {
+			return "This browser does not support the Error.stack object.";
+		}
 	}
 })(jQuery);
