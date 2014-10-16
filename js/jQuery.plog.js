@@ -1,12 +1,12 @@
 /*
- *	Title: jQuery Client Side Logging Plugin
- *	Author: Aaron Woehler (Adapted from jQuery.clientSideLogging by Rémy Bach)
- *	Version: 0.0.1
- *	License: http://mit-license.org
- *	Url: http://github.com/awoehler/jQuery.plog
- *	Description:
+ *  Title: jQuery Client Side Logging Plugin
+ *  Author: Aaron Woehler (Adapted from jQuery.clientSideLogging by Rémy Bach)
+ *  Version: 0.0.1
+ *  License: http://mit-license.org
+ *  Url: http://github.com/awoehler/jQuery.plog
+ *  Description:
  *  This plugin allows you to store front end log/info/error/debug messages on the server or in localStorage/sessionStorage. 
- *	The original plugin was written by Rémy Bach https://github.com/remybach/jQuery.clientSideLogging
+ *  The original plugin was written by Rémy Bach https://github.com/remybach/jQuery.clientSideLogging
  */
  if( typeof Number.prototype.pad != 'function' ) {
 	 Number.prototype.pad = function(size) {
@@ -56,7 +56,7 @@
 		original_log = console.log,
 		original_debug = console.debug;
 
-   /**
+	/**
 	* Initializing with custom options. Not strictly necessary, but recommended.
 	* @param  options The custom options.
 	*/
@@ -112,10 +112,10 @@
 		}
 		return t.slice(0,defaults.logSize);
 	}
-   /**
-    * The function that will send debug logs to the server. Also logs to the console using console.debug() (if available and requested by the user)
-    * @param what What you want to be logged (String, or JSON object)
-    */
+	/**
+	* The function that will send debug logs to the server. Also logs to the console using console.debug() (if available and requested by the user)
+	* @param what What you want to be logged (String, or JSON object)
+	*/
 	$.debug = function(what) {
 		if (defaults.log_level >= 4) {
 			if( typeof what != 'object' ) {
@@ -131,10 +131,10 @@
 	};
 	console.debug = $.debug;
 
-   /**
-    * The function that will send error logs to the server. Also logs to the console using console.error() (if available and requested by the user)
-    * @param what What you want to be logged (String, or JSON object)
-    */
+	/**
+	* The function that will send error logs to the server. Also logs to the console using console.error() (if available and requested by the user)
+	* @param what What you want to be logged (String, or JSON object)
+	*/
 	$.error = function(what) {
 		if (defaults.log_level >= 1) {
 			_send(defaults.error_url, what,'error');
@@ -147,10 +147,10 @@
 	};
 	console.error = $.error;
 
-   /**
-    * The function that will send info logs to the server. Also logs to the console using console.info() (if available and requested by the user)
-    * @param what What you want to be logged (String, or JSON object)
-    */
+	/**
+	* The function that will send info logs to the server. Also logs to the console using console.info() (if available and requested by the user)
+	* @param what What you want to be logged (String, or JSON object)
+	*/
 	$.info = function(what) {
 		if (defaults.log_level >= 3) {
 			_send(defaults.info_url, what,'info');
@@ -163,10 +163,10 @@
 	};
 	console.info = $.info;
 
-   /**
-    * The function that will send standard logs to the server. Also logs to the console using console.log() (if available and requested by the user)
-    * @param what What you want to be logged (String, or JSON object)
-    */
+	/**
+	* The function that will send standard logs to the server. Also logs to the console using console.log() (if available and requested by the user)
+	* @param what What you want to be logged (String, or JSON object)
+	*/
 	$.log = function(what) {
 		if (defaults.log_level >= 2) {
 			_send(defaults.log_url, what,'log');
@@ -179,7 +179,7 @@
 	};
 	console.log = $.log;
 
-   // Log errors whenever there's a generic js error on the page.
+	// Log errors whenever there's a generic js error on the page.
 	window.onerror = function(message, file, line) {
 		if (defaults.native_error) {
 			_send(defaults.error_url, {
@@ -190,12 +190,12 @@
 		}
 	};
 
-   /*===== Private Functions =====*/
-   /**
-    * Send the log information to the server.
-    * @param url The url to submit the information to.
-    * @param what The information to be logged.
-    */
+	/*===== Private Functions =====*/
+	/**
+	* Send the log information to the server.
+	* @param url The url to submit the information to.
+	* @param what The information to be logged.
+	*/
 	_send = function(url, what, errorType ) {
 		url += url.match(/\?.+$/) ? '&' : '?';
 
@@ -272,10 +272,10 @@
 		return 0;
 	}
 
-   /**
-    * Build up an object containing the requested information about the client (as specified in defaults).
-    * @return _info The object containing the requested information.
-    */
+	/**
+	* Build up an object containing the requested information about the client (as specified in defaults).
+	* @return _info The object containing the requested information.
+	*/
 	_buildClientInfo = function() {
 		var _info = {};
 
