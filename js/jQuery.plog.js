@@ -219,8 +219,9 @@
 		var _data = {};
 		_data[defaults.query_var] = JSON.stringify(what);
 
+		var rv = null;
 		if( defaults.sendAJAX ) {
-			$.ajax({
+			rv = $.ajax({
 				type:'POST',
 				url:url+'format=json',
 				data:_data
@@ -234,6 +235,7 @@
 		if( defaults.localStorage ) {
 			_localStore( errorType, what );
 		}
+		return rv;
 	};
 
 	/**
