@@ -35,9 +35,10 @@
 			error_url: '/log/?type=error',  // The url to which errors logs are sent
 			info_url: '/log/?type=info',    // The url to which info logs are sent
 			log_url: '/log/?type=log',      // The url to which standard logs are sent
-			debug_url: '/log/?type=debug',
-			log_level: 1,                   // The level at which to log. This allows you to keep the calls to the logging in your code and just change this variable to log varying degrees. 
-											//      1 = only error, 2 = error & log, 3 = error, log & info, 4 = error, log, info & debug
+			debug_url: '/log/?type=debug',	// The url to which debug logs are sent
+			warn_url: '/log/?type=warn',	// The url to which warnings logs are sent.
+			log_level: 0,                   // The level at which to log. This allows you to keep the calls to the logging in your code and just change this variable to log varying degrees. 
+											//      -1 = off, 0 only log, 1 = error & log, 2 = warn, error, log, 3 = info, warn, error, & log, 4 = debug, info, warn, error, and log.
 			native_error:true,              // Whether or not to send native js errors as well (using window.onerror).
 			hijack_console:true,            // Hijacks the default console functionality (ie: all your console.error/info/log are belong to us).
 			query_var: 'message',           // The variable to send the log message through as.
@@ -54,6 +55,7 @@
 		original_error = console.error,
 		original_info = console.info,
 		original_log = console.log,
+		original_warn = console.warn,
 		original_debug = console.debug;
 
 	/**
@@ -69,16 +71,18 @@
 			console.info = original_info;
 			console.log = original_log;
 			console.debug = original_debug;
+			console.warn = original_warn;
 		} else {
 			console.error = $.error;
 			console.info = $.info;
 			console.log = $.log;
 			console.debug = $.debug;
+			console.warn = $.warn;
 		}
 		//Disable localstorage if it is not available.
 		try {
-			localStorage.setItem(mod, mod);
-			localStorage.removeItem(mod);
+			localStorage.setItem("plogtest", "plogtest");
+			localStorage.removeItem("plogtest");
 		} catch(e) {
 			defaults.localStorage = null;
 		}
@@ -121,11 +125,30 @@
 			if( typeof what != 'object' ) {
 				what = { 'message': what }
 			}
-			_send(defaults.error_url, what,'debug');
+			_send(defaults.debug_url, what,'debug');
 		}
 
 		if (defaults.hijack_console && original_debug && original_debug.apply) {
 			original_debug.apply(console, arguments);
+		}
+		return this;
+	};
+	console.debug = $.debug;
+
+	/**
+	* The function that will send debug logs to the server. Also logs to the console using console.debug() (if available and requested by the user)
+	* @param what What you want to be logged (String, or JSON object)
+	*/
+	$.warn = function(what) {
+		if (defaults.log_level >= 2) {
+			if( typeof what != 'object' ) {
+				what = { 'message': what }
+			}
+			_send(defaults.warn_url, what,'warn');
+		}
+
+		if (defaults.hijack_console && original_warn && original_warn.apply) {
+			original_warn.apply(console, arguments);
 		}
 		return this;
 	};
@@ -168,7 +191,7 @@
 	* @param what What you want to be logged (String, or JSON object)
 	*/
 	$.log = function(what) {
-		if (defaults.log_level >= 2) {
+		if (defaults.log_level >= 0) {
 			_send(defaults.log_url, what,'log');
 		}
 
