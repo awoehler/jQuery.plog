@@ -33,6 +33,11 @@ var detail_vm = function( d ) {
 		//Values contains values not specifically specified.
 	self.values = {};
 	var keys = Object.keys( d );
+	keys.push('location');
+	keys.push('screen_size');
+	keys.push('window_size');
+	keys.push('stackTrace');
+	keys.push('user_agent');
 	for( key in keys ) {
 		switch( keys[key] ) {
 			case 'message': break;
@@ -48,7 +53,7 @@ var detail_vm = function( d ) {
 				} else {
 					self[keys[key]] = '';
 				}
-
+				break;
 			default:
 				self.values[keys[key]] = d[keys[key]];
 		}
