@@ -40,8 +40,8 @@
 											//      1 = only error, 2 = error & log, 3 = error, log & info, 4 = error, log, info & debug
 			native_error:true,              // Whether or not to send native js errors as well (using window.onerror).
 			hijack_console:true,            // Hijacks the default console functionality (ie: all your console.error/info/log are belong to us).
-			query_var: 'message',               // The variable to send the log message through as.
-			localStorage: null,             // Acceptable values are null, localStorage. Without quotes or any object instance with getItem, setItem, and clear that is similar to the localStorage API.
+			query_var: 'message',           // The variable to send the log message through as.
+			localStorage: localStorage,     // Acceptable values are null, localStorage. Without quotes or any object instance with getItem, setItem, and clear that is similar to the localStorage API.
 			logSize: 100,                   // The number of local sesisonStorage or localStorage log entries to keep.
 			client_info: {                  // Configuration for what info about the client's browser is logged.
 				location:true,              //  The url to the page on which the error occurred.
