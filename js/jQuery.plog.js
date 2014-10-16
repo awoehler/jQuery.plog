@@ -205,11 +205,16 @@
 	// Log errors whenever there's a generic js error on the page.
 	window.onerror = function(message, file, line) {
 		if (defaults.native_error) {
+			try {
 			_send(defaults.error_url, {
 				message: message,
 				file: file,
 				line: line
 			});
+			} catch( e ) {
+				//Turn off future ajax submissions because there was an error while trying to send the information.
+				defaults.sendAJAX = false;
+			}
 		}
 	};
 
@@ -251,7 +256,7 @@
 			}).fail( function() {
 				defaults.sendAJAX = false;
 				if( defaults.localStorage ) {
-					_localStore( 'AJAX', {'message':'An error occured while trying to communicate with the remote log server. (OBJECT)', 'stackTrace': _stackTrace() } );
+						$.error('An error occured while trying to communicate with the remote log server. (OBJECT)');
 				}
 			});
 		}
