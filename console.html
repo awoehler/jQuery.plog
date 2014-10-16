@@ -97,6 +97,10 @@ var app_vm = function() {
 	self.toggleError = function() {
 		self.showError( self.showError() ? false : true );
 	}
+	self.showWarn = ko.observable( true );
+	self.toggleWarn = function() {
+		self.showWarn( self.showWarn() ? false : true );
+	}
 	self.showLog = ko.observable( true );
 	self.toggleLog = function() {
 		self.showLog( self.showLog() ? false : true );
@@ -109,6 +113,8 @@ var app_vm = function() {
 				return self.showInfo();
 			case 'log':
 				return self.showLog();
+			case 'warn':
+				return self.showWarn();
 			case 'error':
 				return self.showError();
 			case 'debug':
@@ -174,6 +180,7 @@ var app_vm = function() {
 			<ul class="nav navbar-nav">
 				<!-- <li class='active'><a href="#" data-bind="click: load">Load</a></li> -->
 				<li data-bind="css: { 'active': showError() }"><a href="#" data-bind="click: toggleError">Error</a></li>
+				<li data-bind="css: { 'active': showWarn() }"><a href="#" data-bind="click: toggleWarn">Warn</a></li>
 				<li data-bind="css: { 'active': showLog() }"><a href="#" data-bind="click: toggleLog">Log</a></li>
 				<li data-bind="css: { 'active': showInfo() }"><a href="#" data-bind="click: toggleInfo">Info</a></li>
 				<li data-bind="css: { 'active': showDebug() }"><a href="#" data-bind="click: toggleDebug">Debug</a></li>
@@ -195,7 +202,7 @@ var app_vm = function() {
 				<pre>&lt;script src="js/jQuery.plog.js"&gt;&lt;/script&gt;
 &lt;script&gt;
 $(document).ready(function() {
-    $.clientSideLogging();
+    $.clientSideLogging({'localStorage':localStorage});
 });
 &lt;/script&gt;</pre>
 				<b>Full Initialization</b>				
@@ -274,9 +281,9 @@ $(document).ready(function() {
 		</div>
 		<!-- ko foreach: logs() -->
 			<div class="row" data-bind='visible: $parent.showEntry( $data.type )'>
-				<div class="col-md-3">
+				<div class="col-xs-12 col-sm-1">
 					<div style="width: 4em; display: inline-block;">
-						<span class='label' data-bind="text: type, css: { 'label-info': type == 'info',  'label-primary': type == 'log', 'label-danger': type == 'error', 'label-warning': type == 'debug' }"></span>
+						<div style="width: 4em !important;" class='label' data-bind="text: type, css: { 'label-info': type == 'info',  'label-primary': type == 'log', 'label-danger': type == 'error', 'label-success': type == 'debug', 'label-warning': type == 'warn' }"></div>
 					</div>
 				<!-- </div>
 				<div class="col-md-2 col-sm-6 col-xs-12" style="overflow: hidden;"> -->        		
