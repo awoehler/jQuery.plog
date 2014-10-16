@@ -127,6 +127,7 @@
 		if (defaults.hijack_console && original_debug && original_debug.apply) {
 			original_debug.apply(console, arguments);
 		}
+		return this;
 	};
 	console.debug = $.debug;
 
@@ -142,6 +143,7 @@
 		if (defaults.hijack_console && original_error && original_error.apply) {
 			original_error.apply(console, arguments);
 		}
+		return this;
 	};
 	console.error = $.error;
 
@@ -157,6 +159,7 @@
 		if (defaults.hijack_console && original_info && original_info.apply) {
 			original_info.apply(console, arguments);
 		}
+		return this;
 	};
 	console.info = $.info;
 
@@ -172,6 +175,7 @@
 		if (defaults.hijack_console && original_log && original_log.apply) {
 			original_log.apply(console, arguments);
 		}
+		return this;
 	};
 	console.log = $.log;
 
@@ -255,6 +259,7 @@
 			throw('Key already exists.');
 		}
 		localStorage.setItem( key , JSON.stringify( _data ) );
+		return this;
 	}
 
 	_compare = function( a, b ) {
