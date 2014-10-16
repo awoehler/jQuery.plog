@@ -32,23 +32,23 @@
 
 	var defaults = {
 			sendAJAX: true,
-			error_url: '/log/?type=error',	// The url to which errors logs are sent
-			info_url: '/log/?type=info',	// The url to which info logs are sent
-			log_url: '/log/?type=log',		// The url to which standard logs are sent
+			error_url: '/log/?type=error',  // The url to which errors logs are sent
+			info_url: '/log/?type=info',    // The url to which info logs are sent
+			log_url: '/log/?type=log',      // The url to which standard logs are sent
 			debug_url: '/log/?type=debug',
-			log_level: 1,					// The level at which to log. This allows you to keep the calls to the logging in your code and just change this variable to log varying degrees. 
-											//		1 = only error, 2 = error & log, 3 = error, log & info, 4 = error, log, info & debug
-			native_error:true,				// Whether or not to send native js errors as well (using window.onerror).
-			hijack_console:true,			// Hijacks the default console functionality (ie: all your console.error/info/log are belong to us).
-			query_var: 'message',				// The variable to send the log message through as.
-			localStorage: null,				// Acceptable values are null, sessionStorage, or localStorage. Without quotes
-			logSize: 100,					// The number of local sesisonStorage or localStorage log entries to keep.
-			client_info: {					// Configuration for what info about the client's browser is logged.
-				location:true,				//	The url to the page on which the error occurred.
-				screen_size:true,			//	The size of the user's screen (different to the window size because the window might not be maximized)
-				user_agent:true,			//	The user agent string.
-				window_size:true,			//	The window size.
-				stackTrace:false, 			//  Return a stack trace information.
+			log_level: 1,                   // The level at which to log. This allows you to keep the calls to the logging in your code and just change this variable to log varying degrees. 
+											//      1 = only error, 2 = error & log, 3 = error, log & info, 4 = error, log, info & debug
+			native_error:true,              // Whether or not to send native js errors as well (using window.onerror).
+			hijack_console:true,            // Hijacks the default console functionality (ie: all your console.error/info/log are belong to us).
+			query_var: 'message',               // The variable to send the log message through as.
+			localStorage: null,             // Acceptable values are null, localStorage. Without quotes or any object instance with getItem, setItem, and clear that is similar to the localStorage API.
+			logSize: 100,                   // The number of local sesisonStorage or localStorage log entries to keep.
+			client_info: {                  // Configuration for what info about the client's browser is logged.
+				location:true,              //  The url to the page on which the error occurred.
+				screen_size:true,           //  The size of the user's screen (different to the window size because the window might not be maximized)
+				user_agent:true,            //  The user agent string.
+				window_size:true,           //  The window size.
+				stackTrace:false,           //  Return a stack trace information.
 			}
 		},
 		original_error = console.error,
