@@ -75,9 +75,17 @@
 			console.log = $.log;
 			console.debug = $.debug;
 		}
+		//Disable localstorage if it is not available.
+		try {
+			localStorage.setItem(mod, mod);
+			localStorage.removeItem(mod);
+		} catch(e) {
+			defaults.localStorage = null;
+		}
 	};
 
 	$.clearPlog = function() {
+		if( defaults.localStorage == null ) return;
 		for( var i=0; i < localStorage.length; i++ ) {
 			var _key = localStorage.key(i)
 			if( _key.substr(0,5) == 'plog_' ) {
@@ -87,6 +95,7 @@
 	}
 
 	$.getPlog = function() {
+		if( defaults.localStorage == null ) return [];
 		var t = [];
 		for( var i=0; i < localStorage.length; i++ ) {
 			var _key = localStorage.key(i)
@@ -226,7 +235,8 @@
 	/**
 	 * Save the object to localStorage.
 	 */
-	_localStore = function ( errorType, what ) {
+	_localStore = function ( errorType, what ) {	
+		if( defaults.localStorage == null ) return this;
 		var self = this;
 		if( typeof self.plog_counter == 'undefined' ) {
 			//plog_id is an id unique to each browser window. It is highly unlikely but possible for two windows to open at the same time.
