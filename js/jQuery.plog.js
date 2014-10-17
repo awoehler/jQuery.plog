@@ -289,6 +289,8 @@
 			throw('Key already exists.');
 		}
 		localStorage.setItem( key , JSON.stringify( _data ) );
+		//getPlog removes extra items.
+		$.getPlog();
 		return this;
 	}
 
